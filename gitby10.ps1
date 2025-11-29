@@ -1,38 +1,30 @@
 # -----------------------------
-# gitby10_concat.ps1
+# gitby10_force.ps1
 # -----------------------------
-# Usage: run from repository root in PowerShell
+# Commit and push local repo in batches of 10, ignoring locked files
 # -----------------------------
 
-# ----- CONFIG -----
-$branch = "main"       # Target branch
-$batchSize = 10        # Number of files per commit
-$repoUrl = "https://github.com/KsibetTawkit/TAOUKIT.git"  # GitHub URL
-# -------------------
+# CONFIG
+$branch = "main"
+$batchSize = 10
+$repoUrl = "https://github.com/KsibetTawkit/TAOUKIT.git"
 
-Write-Host "`n===== GIT CLEAN BATCH PUSH =====`n" -ForegroundColor Cyan
+Write-Host "`n===== GIT BATCH FORCE PUSH =====`n" -ForegroundColor Cyan
 
-# ---- Check if folder is a Git repo ----
-if (Test-Path .git) {
-    Write-Host "Resetting local Git repository..." -ForegroundColor Yellow
-    Remove-Item -Recurse -Force .git
+# Ensure Git repo initialized
+if (-Not (Test-Path ".git")) {
+    git init
+    git remote add origin $repoUrl
+    git checkout -b $branch
+} else {
+    git checkout $branch
 }
 
-# ---- Initialize Git and add remote ----
-git init
-git remote add origin $repoUrl
-git checkout -b $branch
-
-# ---- Uninstall LFS to remove old large file history ----
-Write-Host "Cleaning LFS files..." -ForegroundColor Yellow
-git lfs uninstall 2>$null
-
-# ---- List all current files ----
+# List all files recursively
 $allFiles = Get-ChildItem -Recurse -File | Select-Object -ExpandProperty FullName
 $totalFiles = $allFiles.Count
 Write-Host ("Total files to process: " + $totalFiles) -ForegroundColor Cyan
 
-# ---- Split files into batches and commit/push ----
 $batchIndex = 0
 for ($i = 0; $i -lt $totalFiles; $i += $batchSize) {
     $batchIndex++
@@ -45,24 +37,31 @@ for ($i = 0; $i -lt $totalFiles; $i += $batchSize) {
     Write-Host ("--- Batch " + $batchIndex + " (files " + $startIndex + " to " + $endIndex + ") ---") -ForegroundColor Magenta
 
     foreach ($f in $batch) {
-        # Detect file action (Added, Modified, Deleted)
-        $status = git status --porcelain "$f"
-        if ($status -match '^A') { $action = "A" }
-        elseif ($status -match '^M') { $action = "M" }
-        elseif ($status -match '^D') { $action = "D" }
-        else { $action = "?" }
+        try {
+            # Check git status
+            $status = git status --porcelain "$f" 2>$null
+            if ($status -match '^A') { $action = "A" }
+            elseif ($status -match '^M') { $action = "M" }
+            elseif ($status -match '^D') { $action = "D" }
+            else { $action = "?" }
 
-        Write-Host ("  " + $action + " : " + $f)
-        git add "$f"
+            Write-Host ("  " + $action + " : " + $f)
+
+            # Try add file, skip if locked
+            git add "$f" 2>$null
+        } catch {
+            Write-Host ("  SKIPPED (locked or error) : " + $f) -ForegroundColor Yellow
+        }
     }
 
     # Commit batch
     $commitMsg = "Batch " + $batchIndex + ": files " + $startIndex + " to " + $endIndex
-    git commit -m "$commitMsg"
+    git commit -m "$commitMsg" 2>$null
+
     Write-Host ("Commit batch " + $batchIndex + " done.") -ForegroundColor Green
 
-    # Push batch
-    git push origin $branch
+    # Push batch force
+    git push origin $branch --force
     if ($LASTEXITCODE -ne 0) {
         Write-Host ("Error pushing batch " + $batchIndex + ". Stopping.") -ForegroundColor Red
         exit 1
