@@ -1,0 +1,20 @@
+﻿var JS_CITIES_DATA =
+[
+"TN.BEN-GARDANE.بن قردان",
+"TN.EL-HAMMA-G.الحامة - قابس",
+"TN.GABES.ڨابس",
+"TN.GHARDIMAOU.غار الدماء",
+"TN.GERGEIS.جرجيس",
+"TN.GIBLY.قبلي",
+"TN.HERAGLA.هرقلة",
+"TN.JERBA.جربة",
+"TN.MAHARES.المحرس",
+"TN.MANOUBA.منوبة",
+"TN.MEDENINE.مدنين",
+"TN.MONASTIR.منستير",
+"TN.MSAKEN.مساكن",
+"TN.SFAX.صفاقس",
+"TN.TABARKA.طبرقة",
+"TN.TATOUINE.تطاوين",
+"TN.TUNIS.تونس",
+];
