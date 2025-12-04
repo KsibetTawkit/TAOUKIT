@@ -9667,6 +9667,35 @@ function stopDecrement() {
 	})();
 </script>
 
+<!-- Gestion des scripts spécifiques par site -->
+<script>
+(function () {
+    // read the parameter after ?  (ex: ?M0001)
+    let site = location.search.replace('?', '').trim();
+
+    // if empty → use default lights.js
+    if (!site) {
+        let s = document.createElement('script');
+        s.src = './lights.js';
+        document.head.appendChild(s);
+		console.log("✅ default lights.js loaded");
+        return;
+    }
+
+    // first try site-specific script: ./M0001/lights.js
+    let siteScript = document.createElement('script');
+    siteScript.src = `./${site}/lights.js`;
+    siteScript.onerror = function () {
+        console.log(`Site lights not found for ${site}, using default lights.js`);
+        let fallback = document.createElement('script');
+        fallback.src = './lights.js';
+        document.head.appendChild(fallback);
+		
+    };
+    document.head.appendChild(siteScript);
+	console.log(`✅ SPECIFIC lights.js loaded for ${site}`);
+})();
+</script>
 
 </body>
 </html>
