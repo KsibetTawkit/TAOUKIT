@@ -23,7 +23,8 @@
 	<script src="data/TN/wtimes-TN.MONASTIR.js"></script>
 
 	<script src="data/TN/wtimes-TN.TUNIS.js"></script>
-	<script src="JSALLDATA.js"></script>
+	 <script src="JSALLDATA.js"></script> 
+	  <script src="lights.js"></script> 
 	<script src='ayats.js?c=ccc'></script>
 	<script src='countries.js?c=1'></script>
 
@@ -31,7 +32,80 @@
 
 
 
-	<script src="lights.js"></script>
+	<script>
+		(function () {
+			const site = location.search.replace('?', '').trim();
+			console.log("🔍 Site parameter =", site || "(none)");
+
+			// No site → load default
+			if (!site) {
+				console.log("➡️ No site provided → loading default scripts");
+
+				const s1 = document.createElement('script');
+				s1.src = './lights.js';
+				s1.onload  = () => console.log("✅ Loaded: default lights.js");
+				s1.onerror = () => console.log("❌ Failed to load: default lights.js");
+				document.head.appendChild(s1);
+
+				const s2 = document.createElement('script');
+				s2.src = './JSALLDATA.js';
+				s2.onload  = () => console.log("✅ Loaded: default JSALLDATA.js");
+				s2.onerror = () => console.log("❌ Failed to load: default JSALLDATA.js");
+				document.head.appendChild(s2);
+
+				return;
+			}
+
+			console.log(`➡️ Trying site-specific scripts for site: ${site}`);
+
+			// ---------------------------
+			// 1️⃣ Load site-specific lights.js
+			// ---------------------------
+			const siteLights = document.createElement('script');
+			siteLights.src = `./${site}/lights.js`;
+
+			siteLights.onload = () =>
+				console.log(`✅ Loaded: site-specific lights.js from ${site}`);
+
+			siteLights.onerror = () => {
+				console.log(`⚠️ Site-specific lights.js not found → falling back to default`);
+
+				const fallback = document.createElement('script');
+				fallback.src = './lights.js';
+				fallback.onload  = () => console.log("✅ Loaded: default lights.js (fallback)");
+				fallback.onerror = () => console.log("❌ Failed to load: default lights.js (fallback)");
+				document.head.appendChild(fallback);
+			};
+
+			document.head.appendChild(siteLights);
+
+			// ---------------------------
+			// 2️⃣ Load site-specific JSALLDATA.js
+			// ---------------------------
+			const siteData = document.createElement('script');
+			siteData.src = `./${site}/JSALLDATA.js`;
+
+			siteData.onload = () =>
+				console.log(`✅ Loaded: site-specific JSALLDATA.js from ${site}`);
+
+			siteData.onerror = () => {
+				console.log(`⚠️ Site-specific JSALLDATA.js not found → falling back to default`);
+
+				const fallback = document.createElement('script');
+				fallback.src = './JSALLDATA.js';
+				fallback.onload  = () => console.log("✅ Loaded: default JSALLDATA.js (fallback)");
+				fallback.onerror = () => console.log("❌ Failed to load: default JSALLDATA.js (fallback)");
+				document.head.appendChild(fallback);
+			};
+
+			document.head.appendChild(siteData);
+			
+			console.log('2 -  JSALLDATA.IZAMPLIINTERNE=' + JSALLDATA.IZAMPLIINTERNE);
+
+		})();
+	</script>
+
+
 	
 
 	<script>  
@@ -302,24 +376,29 @@
 
 	//loadScript('JSALLDATA.js', () => {  console.log("✅ JSALLDATA loaded"); });
 
-	loadScript('lights.js', () => {  console.log("✅ lights.js loaded");});
-
-	function dolog(s)
-	{
-	if( JSALLDATA.IZLOG)
-		console.log(s);
+	//loadScript('lights.js', () => {  console.log("✅ lights.js loaded");});
+	function dolog(s) {
+		if (!window.JSALLDATA) return;
+		if (JSALLDATA.IZLOG)
+			console.log(s);
 	}
-		// Recharge de JSALLDATA à partir du CASH
-		var STRtempo = localStorage.getItem('JSALLDATA'); 
 
-		if(STRtempo)
-		{
-			var tmpOBJ = JSON.parse(STRtempo);
-			for(var propt in tmpOBJ)
-			{
-			if(propt in JSALLDATA) JSALLDATA[propt] = tmpOBJ[propt];
+	// Reload JSALLDATA from CACHE only if JSALLDATA is already loaded
+	if (window.JSALLDATA) {
+		const STRtempo = localStorage.getItem('JSALLDATA');
+
+		if (STRtempo) {
+			const tmpOBJ = JSON.parse(STRtempo);
+			for (const propt in tmpOBJ) {
+				if (JSALLDATA.hasOwnProperty(propt)) {
+					JSALLDATA[propt] = tmpOBJ[propt];
+				}
 			}
 		}
+	} else {
+		console.warn("⚠️ JSALLDATA not yet loaded → skipping reload from cache");
+	}
+
 
 
 
@@ -385,7 +464,7 @@
 	var eetempo = localStorage.getItem('STORAGE_WCSV_ACTIVE');
 	if(eetempo == '1') JS_WCSV_ACTIVE = true;
 
-	// The encapsulation is named IFFE : Immediately Invoked Function Expression
+	// The encapsulation is named IIFE : Immediately Invoked Function Expression
 	(function() {
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
@@ -2882,6 +2961,25 @@ function stopDecrement() {
 	}
 
 
+	function setDefaultCITY()
+	{
+		
+		JS_CITY_CODE 	= JSALLDATA.DefaultCity;
+		localStorage.setItem('STORAGE_CITY_CODE', JS_CITY_CODE);
+		updateLocationByFILE();
+
+		JS_VERSIO = new Date().getTime();  // again update cache
+		var tmp   = JS_CITY_CODE.split(".");
+		var yFile = 'data/'+tmp[0]+'/wtimes-'+JS_CITY_CODE+'.js?e='+ JS_VERSIO;
+		console.log ('getCITY : Chargement du fichier wtime :'+JS_CITY_CODE+ " --- "+yFile);
+		var JS_yscript 		= document.createElement("script");
+		JS_yscript.type 	= "text/javascript";
+		JS_yscript.src 		= yFile;
+		JS_yscript.onload	= function(){
+										GoGloballyFillDATA();
+										};
+		document.body.appendChild(JS_yscript);
+	}
 
 	//---------getCITY--------------------------------------------------------------------------
 	function getCITY(obj)
@@ -3116,6 +3214,17 @@ function stopDecrement() {
 					
 			}, JSALLDATA.JS_DELAY_ROLLER);	//5min roller	
 		}
+		if (JSALLDATA.IZAMPLIEXTERNE && JSALLDATA.JS_PlayCoranAfterMaghreb) {
+			setTimeout(() => {
+			dolog('CORAN AFTER MAGHREB : CALL TO SwitchLight with JS_LIGHT_ADR_AMPLIEXT_ON =  '+ JSALLDATA.IZAMPLIEXTERNE +' / '+ JS_LIGHT_ADR_AMPLIEXT_ON);
+			SwitchLight(JSALLDATA.IZAMPLIEXTERNE, JS_LIGHT_ADR_AMPLIEXT_ON);
+			JS_LIGHT_ADR_AMPLIEXT_STATUS = true;											
+			}, JSALLDATA.JS_DELAY_CORANAFTER);	//By default 5min after end of the current prayer 	
+			
+			playAudioPlayer();
+
+		}
+
 
 		if(JS_APP_AZKAR_ACTIVE)	{
 			setTimeout('SartMainAZKAR()', 7000 );
@@ -6418,7 +6527,19 @@ function stopDecrement() {
 
 
 
+	//--------editMOSQUENAME-----------------------------------------------------------------------------------
+	function setMOSQUENAME()
+	{	
 
+		var str = JSALLDATA.MosqueName;
+		if(str === null || str === '' || !str) str = 'إسم المسجد هنا';
+		
+		JS_MOSQUE_NAME = str;
+		JS_VRMsqNAME.innerHTML = JS_MOSQUE_NAME;
+		JS_HRMsqNAME.innerHTML = JS_MOSQUE_NAME;
+		localStorage.setItem('STORAGE_MOSQUE_NAME', JS_MOSQUE_NAME);
+
+	}
 
 	//--------editMOSQUENAME-----------------------------------------------------------------------------------
 	function editMOSQUENAME()
@@ -8042,23 +8163,38 @@ function stopDecrement() {
 		}
 	}
 	function ReloadSETTINGS() {
-		dolog('ReloadSETTINGS');
-		if (confirm("Are you sure to reset JSALLDATA and reload the page ?")) {
-			loadScript('lights.js', () => {
-				console.log("✅ lights.js loaded");
+		dolog('Manual Reload SETTINGS');
 
-				loadScript('JSALLDATA.js', () => {
-					console.log("✅ JSALLDATA.js loaded");
+		if (!confirm("Are you sure to reset JSALLDATA and reload the page ?")) return;
 
-					// Sauvegarder dans le cache
-					localStorage.setItem('JSALLDATA', JSON.stringify(JSALLDATA));
-
-					// Recharger seulement après que JSALLDATA est bien chargé
-					location.reload();
-				});
-			});
+		// Prevent reload-loop
+		if (sessionStorage.getItem('alreadyReloaded') === '1') {
+			sessionStorage.removeItem('alreadyReloaded');
+			return;
 		}
+
+		const site = location.search.replace('?', '').trim();
+		const lightsPath = site ? `./${site}/lights.js` : './lights.js';
+		console.log("🔍 Using lights file:", lightsPath);
+
+		// Reset JSALLDATA in memory
+		window.JSALLDATA = undefined;
+
+		loadScript(lightsPath, () => {
+			console.log("✅ lights loaded:", lightsPath);
+
+			loadScript('JSALLDATA.js', () => {
+				console.log("✅ JSALLDATA.js loaded");
+
+				localStorage.setItem('JSALLDATA', JSON.stringify(JSALLDATA));
+
+				sessionStorage.setItem('alreadyReloaded', '1');
+				location.reload();
+			}, () => alert("❌ Failed to load JSALLDATA.js"));
+		}, () => alert("❌ Failed to load: " + lightsPath));
 	}
+
+
 
 	
 	
@@ -9665,37 +9801,14 @@ function stopDecrement() {
 	repositionMarqueeHR();
 	AdminUpdateMarquee();
 	})();
-</script>
+	</script>
 
-<!-- Gestion des scripts spécifiques par site -->
-<script>
-(function () {
-    // read the parameter after ?  (ex: ?M0001)
-    let site = location.search.replace('?', '').trim();
-
-    // if empty → use default lights.js
-    if (!site) {
-        let s = document.createElement('script');
-        s.src = './lights.js';
-        document.head.appendChild(s);
-		console.log("✅ default lights.js loaded");
-        return;
-    }
-
-    // first try site-specific script: ./M0001/lights.js
-    let siteScript = document.createElement('script');
-    siteScript.src = `./${site}/lights.js`;
-    siteScript.onerror = function () {
-        console.log(`Site lights not found for ${site}, using default lights.js`);
-        let fallback = document.createElement('script');
-        fallback.src = './lights.js';
-        document.head.appendChild(fallback);
-		
-    };
-    document.head.appendChild(siteScript);
-	console.log(`✅ SPECIFIC lights.js loaded for ${site}`);
-})();
-</script>
+	<script>
+			console.log('1 -  JSALLDATA.IZAMPLIINTERNE=' + JSALLDATA.IZAMPLIINTERNE);
+			setMOSQUENAME();
+			setDefaultCITY();
+			//GoGloballyFillDATA();
+	</script>
 
 </body>
 </html>

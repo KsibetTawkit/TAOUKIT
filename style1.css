@@ -133,6 +133,10 @@
 	left:20.2%; top:20.4%; z-index:997; letter-spacing:var(--LETTfullHR); text-align:center;
 	width:60%; height:15%; text-shadow:var(--CLK_SHDW); opacity:var(--VRBigCNTR); 
 	font-family :var(--XX_CLOKEN); color:var(--Color_CLOCK);}
+#HR_sssCLOKO {position:absolute;	line-height:1em; font-size:10.5vw; 
+	left:20.2%; top:20.4%; z-index:997; letter-spacing:var(--LETTfullHR); text-align:center;
+	width:60%; height:15%; text-shadow:var(--CLK_SHDW); opacity:var(--VRBigCNTR); 
+	font-family :var(--XX_CLOKEN); color:var(--Color_CLOCK);}
 
 	#HReAyatsHDR {position:absolute;font-family:'Amiri'; left:0%; font-size:3vw; 
 		height:14%; width:100%; top:45%; line-height:1em; 

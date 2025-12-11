@@ -1,5 +1,5 @@
 var JSALLDATA = {
-    MosqueName      :'إسم المسجد هنا',
+    MosqueName      :'مسجد الهداية',
     DefaultCity     :'TN.MONASTIR',
     IZmarquee		: 1,
     IZmeteo			: 1,
@@ -47,7 +47,7 @@ var JSALLDATA = {
     JS_PlayCoranThuhr:0,
     JS_PlayCoranAsr  :0,
     JS_PlayCoranMaghreb:1,
-    JS_PlayCoranAfterMaghreb:1,
+    JS_PlayCoranAfterMaghreb:0,
     JS_PlayCoranIsha  :1,
     JS_PlayCoranJomoaa:0,
     JS_BEEP_ON        :1,
