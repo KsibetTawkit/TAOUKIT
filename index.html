@@ -923,7 +923,12 @@ function stopDecrement() {
 		<audio id='eBeeep' 			src='audio/audio_wbeeep.wav'></audio>
 		<audio id='eTit' 			src='audio/audio_wtit.wav'></audio>
 	</div>
-
+	
+	<div id="audioIndicator" class="audio-indicator">
+		<div class="bar"></div>
+		<div class="bar"></div>
+		<div class="bar"></div>
+	</div>
 
 
 <div id='eMainVERTICAL' class='s003'>
@@ -9802,6 +9807,29 @@ function stopDecrement() {
 	AdminUpdateMarquee();
 	})();
 	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+
+			var audio = JS_CURRENTAUDIOTIME;  // = document.getElementById('coranPlayer');
+			var indicator = document.getElementById("audioIndicator");
+
+			function showIndicator() {
+				indicator.style.opacity = 1;
+			}
+
+			function hideIndicator() {
+				indicator.style.opacity = 0;
+			}
+
+			audio.addEventListener("play", showIndicator);
+			audio.addEventListener("playing", showIndicator);
+			audio.addEventListener("pause", hideIndicator);
+			audio.addEventListener("ended", hideIndicator);
+			audio.addEventListener("error", hideIndicator);
+		});
+	</script>
+
+
 	<!-- Last script -->
 	<script>
 			console.log('1 -  JSALLDATA.IZAMPLIINTERNE=' + JSALLDATA.IZAMPLIINTERNE);
