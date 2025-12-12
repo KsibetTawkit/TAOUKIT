@@ -9837,6 +9837,14 @@ function stopDecrement() {
 		});
 	</script>
 
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const params = new URLSearchParams(window.location.search);
+		const site = [...params.keys()][0] || ''; // récupère M0005 même sans "="
+
+		console.log("Paramètre :", site);
+	});
+	</script>
 
 	<!-- Last script -->
 	<!-- <script>
